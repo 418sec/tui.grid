@@ -165,7 +165,12 @@ export function setValue(
     return;
   }
 
-  value = change.nextValue;
+  value = String(change.nextValue)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;');
   const { rowSpanMap } = targetRow;
   const { columns } = sortState;
   const index = findPropIndex('columnName', columnName, columns);
