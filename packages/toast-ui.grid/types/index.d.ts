@@ -1,4 +1,4 @@
-// Type definitions for TOAST UI Grid v4.16.1
+// Type definitions for TOAST UI Grid v4.17.0
 // TypeScript Version: 3.9.5
 
 import { CellValue, RowKey, Row, SortState, RowSpan, InvalidRow } from './store/data';
@@ -20,6 +20,7 @@ import {
   OptRow,
   OptColumn,
   ResetOptions,
+  OptMoveRow,
 } from './options';
 import {
   ModifiedRowsOptions,
@@ -262,7 +263,7 @@ declare namespace tui {
 
     public setRow(rowKey: RowKey, row: OptRow): void;
 
-    public moveRow(rowKey: RowKey, targetIndex: number): void;
+    public moveRow(rowKey: RowKey, targetIndex: number, options: OptMoveRow): void;
 
     public setRequestParams(params: Dictionary<any>): void;
 

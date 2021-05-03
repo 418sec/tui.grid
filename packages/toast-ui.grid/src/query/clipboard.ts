@@ -1,9 +1,11 @@
 import { CustomValue, ColumnInfo } from '@t/store/column';
-import { CellValue, Row, CellRenderData } from '@t/store/data';
+import { CellValue, Row, CellRenderData, ViewRow } from '@t/store/data';
 import { ListItemOptions } from '@t/editor';
 import { Store } from '@t/store';
 import { SelectionRange } from '@t/store/selection';
 import { find, isNull } from '../helper/common';
+import { makeObservable } from '../dispatch/data';
+import { isObservable, notify } from '../helper/observable';
 
 function getCustomValue(
   customValue: CustomValue,
@@ -27,8 +29,8 @@ function getTextWithCopyOptionsApplied(
   if (copyOptions) {
     if (copyOptions.customValue) {
       text = getCustomValue(copyOptions.customValue, valueMap.value, rawData, column);
-    } else if (copyOptions.useListItemText && editorOptions) {
-      const { listItems } = (editorOptions as unknown) as ListItemOptions;
+    } else if (copyOptions.useListItemText && editorOptions?.listItems) {
+      const { listItems } = editorOptions as ListItemOptions;
       const { value } = valueMap;
       let valueList = [value];
       const result: CellValue[] = [];
@@ -75,6 +77,23 @@ function getValueToString(store: Store) {
   );
 }
 
+function getObservableList(store: Store, filteredViewData: ViewRow[], start: number, end: number) {
+  const rowList = [];
+
+  for (let i = start; i <= end; i += 1) {
+    if (!isObservable(filteredViewData[i].valueMap)) {
+      makeObservable(store, i, true);
+
+      if (i === end) {
+        notify(store.data, 'rawData', 'filteredRawData', 'viewData', 'filteredViewData');
+      }
+    }
+    rowList.push(filteredViewData[i]);
+  }
+
+  return rowList;
+}
+
 function getValuesToString(store: Store) {
   const {
     selection: { originalRange },
@@ -87,19 +106,14 @@ function getValuesToString(store: Store) {
   }
 
   const { row, column } = originalRange!;
-
-  const rowList = filteredViewData.slice(row[0], row[1] + 1);
+  const rowList = getObservableList(store, filteredViewData, ...row);
   const columnInRange = visibleColumnsWithRowHeader.slice(column[0], column[1] + 1);
 
   return rowList
     .map(({ valueMap }) =>
       columnInRange
-        .map(({ name }, index) =>
-          getTextWithCopyOptionsApplied(
-            valueMap[name],
-            filteredRawData,
-            visibleColumnsWithRowHeader[index]
-          )
+        .map((targetColumn) =>
+          getTextWithCopyOptionsApplied(valueMap[targetColumn.name], filteredRawData, targetColumn)
         )
         .join('\t')
     )
