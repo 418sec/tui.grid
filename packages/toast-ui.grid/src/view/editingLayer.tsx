@@ -70,7 +70,12 @@ export class EditingLayerComp extends Component<Props> {
 
     if (this.editor && active) {
       const { rowKey, columnName } = editingAddress!;
-      const value = this.editor.getValue();
+      const value = String(this.editor.getValue())
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
       if (save) {
         dispatch('setValue', rowKey, columnName, value);
       }

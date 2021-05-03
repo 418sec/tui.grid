@@ -73,7 +73,10 @@ export type GridEventName =
   | 'beforePageMove'
   | 'afterPageMove'
   | 'beforeChange'
-  | 'afterChange';
+  | 'afterChange'
+  | 'dragStart'
+  | 'drag'
+  | 'drop';
 export type GridEventListener = (gridEvent: TuiGridEvent) => void;
 
 export interface OptGrid {
@@ -106,6 +109,7 @@ export interface OptGrid {
   onGridMounted?: GridEventListener;
   onGridUpdated?: GridEventListener;
   onGridBeforeDestroy?: GridEventListener;
+  draggable?: boolean;
 }
 
 export interface OptRow {
@@ -117,7 +121,7 @@ export interface OptRow {
 export interface OptAppendRow {
   at?: number;
   focus?: boolean;
-  parentRowKey?: RowKey;
+  parentRowKey?: RowKey | null;
   extendPrevRowSpan?: boolean;
 }
 
@@ -131,9 +135,13 @@ export interface OptRemoveRow {
 }
 
 export interface OptAppendTreeRow {
-  parentRowKey?: RowKey;
+  parentRowKey?: RowKey | null;
   offset?: number;
   focus?: boolean;
+}
+
+export interface OptMoveRow {
+  appended?: boolean;
 }
 
 export interface OptTree {
@@ -437,6 +445,21 @@ export interface OptI18nData {
     noDataToDelete?: string;
     noDataToModify?: string;
     failResponse?: string;
+  };
+  filter?: {
+    contains?: string;
+    eq?: string;
+    ne?: string;
+    start?: string;
+    end?: string;
+    after?: string;
+    afterEq?: string;
+    before?: string;
+    beforeEq?: string;
+    apply?: string;
+    clear?: string;
+    selectAll?: string;
+    emptyValue?: string;
   };
 }
 
